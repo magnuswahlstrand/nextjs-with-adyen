@@ -4,5 +4,5 @@ export type ProfileData = {
 
 export type SessionData = {
     id: string
-    data: string
+    sessionData: string
 }
