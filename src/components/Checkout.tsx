@@ -28,25 +28,17 @@ type PaymentCompleteResponse = {
 
 const Checkout = () => {
     const paymentContainer = useRef(null);
-    const {data, error} = useSWRImmutable('/api/session', fetcher)
-
-    console.log(data)
+    const {data: session, error} = useSWRImmutable('/api/session', fetcher)
 
     useEffect(() => {
         let ignore = false;
-
-        if (!data) return
-
-        console.log('use effect')
-        const session = data
-        console.log("session", session)
 
         if (!session || !paymentContainer.current) {
             return;
         }
 
         const config = {
-            environment: "TEST",
+            environment: process.env.NEXT_PUBLIC_ADYEN_ENVIRONMENT,
             clientKey: process.env.NEXT_PUBLIC_ADYEN_CLIENT_KEY,
         }
 
@@ -61,8 +53,6 @@ const Checkout = () => {
                         alert(`Unhandled payment result "${response.resultCode}!"`);
                         return
                     }
-
-                    // Success!
                 },
                 onError: (error: any, _component: any) => {
                     alert(`Error: ${error.message}`);
@@ -79,20 +69,14 @@ const Checkout = () => {
         }
 
         createCheckout()
-            .then(() => {
-                console.log('create checkout then')
-            })
-            .catch((e) => {
-                console.log('create checkout error')
-            });
 
         return () => {
             ignore = true;
         }
-    }, [data])
+    }, [session])
 
     if (error) return <div>Failed to load</div>
-    if (!data) return <div>Loading...</div>
+    if (!session) return <div>Loading...</div>
 
     return (
         <div className="payment-container">
